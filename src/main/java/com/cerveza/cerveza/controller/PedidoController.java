@@ -70,7 +70,11 @@ public class PedidoController {
     }
 
     @GetMapping("/producto/{idProducto}")
+<<<<<<< HEAD
     public List<PedidoDTO> buscarPorProducto(@PathVariable Integer idProducto) {
+=======
+    public List<PedidoDTO> buscarPorProducto(@PathVariable Long idProducto) {
+>>>>>>> 50a7fcb0dbe5354675d2e86bbf9da1a6b1ce766c
         return pedidoService.buscarPorProducto(idProducto);
     }
 }
