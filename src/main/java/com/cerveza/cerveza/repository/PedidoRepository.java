@@ -10,12 +10,12 @@ import com.cerveza.cerveza.model.Pedido;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
 
-    List<Pedido> EncontrarEstadoPedido(String estadoPedido);
+    List<Pedido> findByEstadoPedido(String estadoPedido);
 
-    List<Pedido> EncontrarClienteContainingIgnoreCase(String cliente);
+    List<Pedido> findByClienteContainingIgnoreCase(String cliente);
 
     @Query("SELECT p FROM Pedido p WHERE p.totalVenta >= :montoMinimo")
     List<Pedido> buscarPedidosVip(@Param("montoMinimo") Double montoMinimo);
 
-    List<Pedido> EncontrarIdProducto(Long idProducto);
+    List<Pedido> findByProducto_IdStockFinal(Integer idStockFinal);
 }

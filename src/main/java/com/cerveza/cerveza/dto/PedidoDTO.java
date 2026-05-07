@@ -7,7 +7,7 @@ public class PedidoDTO {
 
     private Integer idPedido;
     private String cliente;
-    private Long idProducto;
+    private Integer idProducto;
     private Integer cantidadSolicitada;
     private Double totalVenta;
     private String estadoPedido;
