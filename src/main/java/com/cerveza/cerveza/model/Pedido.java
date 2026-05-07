@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -32,14 +34,16 @@ public class Pedido {
     @Column(nullable = false, length = 100)
     private String cliente;
 
-    @NotNull(message = "El id del producto es obligatorio")
-    @Column(nullable = false)
-    private Long idProducto;
+    @ManyToOne
+    @JoinColumn(name = "id_stock_final", nullable = false)
+    private StockFinal producto;
 
+    @NotNull(message = "La cantidad es obligatoria")
     @Min(value = 1, message = "Debe pedir al menos una unidad")
     @Column(nullable = false)
     private Integer cantidadSolicitada;
 
+    @NotNull(message = "El total es obligatorio")
     @Min(value = 0, message = "El total de la venta no puede ser negativo")
     @Column(nullable = false)
     private Double totalVenta;

@@ -1,22 +1,16 @@
 package com.cerveza.cerveza.service;
 
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.cerveza.cerveza.dto.PedidoDTO;
 import com.cerveza.cerveza.model.Pedido;
 import com.cerveza.cerveza.repository.PedidoRepository;
-
 import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
 public class PedidoService {
-    private static final Logger log = LoggerFactory.getLogger(PedidoService.class);
 
     @Autowired
     private PedidoRepository pedidoRepository;
@@ -25,7 +19,11 @@ public class PedidoService {
         PedidoDTO dto = new PedidoDTO();
         dto.setIdPedido(pedido.getIdPedido());
         dto.setCliente(pedido.getCliente());
-        dto.setIdProducto(pedido.getIdProducto());
+        
+        if (pedido.getProducto() != null) {
+            dto.setIdProducto(pedido.getProducto().getIdStockFinal());
+        }
+        
         dto.setCantidadSolicitada(pedido.getCantidadSolicitada());
         dto.setTotalVenta(pedido.getTotalVenta());
         dto.setEstadoPedido(pedido.getEstadoPedido());
@@ -33,7 +31,6 @@ public class PedidoService {
     }
 
     public List<PedidoDTO> obtenerTodos() {
-        log.info("Consultando la lista completa de pedidos");
         return pedidoRepository.findAll().stream()
                 .map(this::convertirADTO)
                 .toList();
@@ -46,9 +43,7 @@ public class PedidoService {
     }
 
     public PedidoDTO guardarPedido(Pedido pedido) {
-        log.info("Iniciando registro de pedido para el cliente: {}", pedido.getCliente());
         Pedido guardado = pedidoRepository.save(pedido);
-        log.info("Pedido #{} guardado exitosamente", guardado.getIdPedido());
         return convertirADTO(guardado);
     }
 
@@ -65,8 +60,8 @@ public class PedidoService {
         if (datosNuevos.getCantidadSolicitada() != null) {
             pedidoExistente.setCantidadSolicitada(datosNuevos.getCantidadSolicitada());
         }
-        if (datosNuevos.getIdProducto() != null) {
-        pedidoExistente.setIdProducto(datosNuevos.getIdProducto());
+        if (datosNuevos.getProducto() != null) {
+            pedidoExistente.setProducto(datosNuevos.getProducto());
         }
         if (datosNuevos.getTotalVenta() != null) {
             pedidoExistente.setTotalVenta(datosNuevos.getTotalVenta());
@@ -80,7 +75,6 @@ public class PedidoService {
             Pedido pedido = pedidoRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Imposible eliminar. El pedido con ID " + id + " no existe"));
             pedidoRepository.delete(pedido);
-            log.warn("Pedido #{} eliminado exitosamente", id);
             return "El pedido de '" + pedido.getCliente() + "' ha sido retirado exitosamente";
         } catch (RuntimeException e) {
             return e.getMessage();
@@ -105,8 +99,8 @@ public class PedidoService {
                 .toList();
     }
 
-    public List<PedidoDTO> buscarPorProducto(Long idProducto) {
-        return pedidoRepository.findByIdProducto(idProducto).stream()
+    public List<PedidoDTO> buscarPorProducto(Integer idStockFinal) {
+        return pedidoRepository.findByProducto_IdStockFinal(idStockFinal).stream()
                 .map(this::convertirADTO)
                 .toList();
     }

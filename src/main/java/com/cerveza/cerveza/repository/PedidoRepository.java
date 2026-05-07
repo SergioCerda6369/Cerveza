@@ -17,5 +17,5 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     @Query("SELECT p FROM Pedido p WHERE p.totalVenta >= :montoMinimo")
     List<Pedido> buscarPedidosVip(@Param("montoMinimo") Double montoMinimo);
 
-    List<Pedido> findByIdProducto(Long idProducto);
+    List<Pedido> findByProducto_IdStockFinal(Integer idStockFinal);
 }
