@@ -15,6 +15,7 @@ import com.cerveza.cerveza.repository.FermentacionRepository;
 @Service
 public class FermentacionService {
     private Logger log = LoggerFactory.getLogger(FermentacionService.class);
+
     @Autowired
     private FermentacionRepository fermentacionRepository;
 
@@ -39,10 +40,11 @@ public class FermentacionService {
         return convertirADTO(fermentacion);
     }
 
-    public FermentacionDTO buscarPorCodigoTanque(Fermentacion codigo){
-        Fermentacion fermentacion = fermentacionRepository.findByCodigo_tanque(codigo)
-            .orElseThrow(() -> new RuntimeException("La fermentación con código de tanque " + codigo + " no existe en los registros"));
-        return convertirADTO(fermentacion);
+    public FermentacionDTO buscarPorCodigoTanque(String codigo){
+        log.info("Buscando fermentacion por codigo de tanque: ", codigo);
+        return fermentacionRepository.findByCodigoTanque(codigo)
+            .map(this::convertirADTO)
+            .orElseThrow(() -> new RuntimeException("El tanque " + codigo + " no existe"));
     }
 
     public FermentacionDTO guardarFermentacion (Fermentacion fermentacion){
