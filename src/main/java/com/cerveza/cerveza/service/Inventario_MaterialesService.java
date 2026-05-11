@@ -1,6 +1,7 @@
 package com.cerveza.cerveza.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,68 +10,53 @@ import com.cerveza.cerveza.dto.Inventario_MaterialesDTO;
 import com.cerveza.cerveza.model.Inventario_Materiales;
 import com.cerveza.cerveza.repository.Inventario_MaterialesRepository;
 
-import jakarta.transaction.Transactional;
 
 @Service
-@Transactional
 public class Inventario_MaterialesService {
 
     @Autowired
-    private Inventario_MaterialesRepository Inventario_MaterialesRepository;
+    private Inventario_MaterialesRepository inventarioRepository;
 
-        private Inventario_MaterialesDTO convertirADTO(Inventario_Materiales inventario){
+    public List<Inventario_MaterialesDTO> obtenerTodos() {
+        return inventarioRepository.findAll().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    public Inventario_MaterialesDTO buscarPorId(Integer id) {
+        return inventarioRepository.findById(id)
+                .map(this::convertirADTO)
+                .orElse(null);
+    }
+
+    public Inventario_MaterialesDTO guardarInventario(Inventario_Materiales inventario) {
+        return convertirADTO(inventarioRepository.save(inventario));
+    }
+
+    public Inventario_MaterialesDTO actualizarInventario(Integer id, Inventario_Materiales datosNuevos) {
+        return inventarioRepository.findById(id).map(existente -> {
+            if (datosNuevos.getNombre_material() != null) existente.setNombre_material(datosNuevos.getNombre_material());
+            if (datosNuevos.getCantidad_stock() != null) existente.setCantidad_stock(datosNuevos.getCantidad_stock());
+            if (datosNuevos.getNombre_proveedor() != null) existente.setNombre_proveedor(datosNuevos.getNombre_proveedor());
+            return convertirADTO(inventarioRepository.save(existente));
+        }).orElse(null);
+    }
+
+    public boolean eliminarInventario(Integer id) {
+        return inventarioRepository.findById(id).map(material -> {
+            inventarioRepository.delete(material);
+            return true;
+        }).orElse(false);
+    }
+
+    private Inventario_MaterialesDTO convertirADTO(Inventario_Materiales inventario) {
         Inventario_MaterialesDTO dto = new Inventario_MaterialesDTO();
         dto.setId_material(inventario.getId_material());
         dto.setNombre_material(inventario.getNombre_material());
         dto.setCantidad_stock(inventario.getCantidad_stock());
         dto.setNombre_proveedor(inventario.getNombre_proveedor());
         return dto;
-        }
-
-        public List<Inventario_MaterialesDTO> obtenerTodos(){
-            return Inventario_MaterialesRepository.findAll().stream()
-                .map(this::convertirADTO)
-                .toList();
-        }
-
-        public Inventario_MaterialesDTO buscarPorId(Integer id){
-            Inventario_Materiales inventario = Inventario_MaterialesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe material con id" + id +"en los registros"));
-            return convertirADTO(inventario);
-        }
-
-        public Inventario_MaterialesDTO guardarInventario(Inventario_Materiales inventario){
-            Inventario_Materiales guardado = Inventario_MaterialesRepository.save(inventario);
-            return convertirADTO(guardado);
-        }
-
-        public Inventario_MaterialesDTO actualizarInventario(Integer id, Inventario_Materiales datosNuevos){
-            Inventario_Materiales inventarioExistente = Inventario_MaterialesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe el material con id " + id));
-
-            if (datosNuevos.getNombre_material() != null){
-                inventarioExistente.setNombre_material(datosNuevos.getNombre_material());
-            }
-            if (datosNuevos.getCantidad_stock() != null){
-                inventarioExistente.setCantidad_stock(datosNuevos.getCantidad_stock());
-            }
-            if (datosNuevos.getNombre_proveedor() != null){
-                inventarioExistente.setNombre_proveedor(datosNuevos.getNombre_proveedor());
-            }
-
-            return convertirADTO(Inventario_MaterialesRepository.save(inventarioExistente));
-        }
-
-        public String eliminarInventario(Integer id){
-            Inventario_Materiales inventarioExistente = Inventario_MaterialesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se encontro material asociado a la id" + id));
-            Inventario_MaterialesRepository.delete(inventarioExistente);
-            return "Material eliminado correctamente";
-        }
-
-
-
-
+    }
         
 }
 

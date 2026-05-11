@@ -2,41 +2,41 @@ package com.cerveza.cerveza.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.cerveza.cerveza.dto.Inventario_MaterialesDTO;
-import com.cerveza.cerveza.model.Inventario_Materiales;
-import com.cerveza.cerveza.service.Inventario_MaterialesService;
+import com.cerveza.cerveza.dto.MantenimientoDTO;
+import com.cerveza.cerveza.model.Mantenimiento;
+import com.cerveza.cerveza.service.MantenimientoService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/inventario_materiales")
+@RequestMapping("/api/mantenimiento")
 @CrossOrigin(origins = "*")
-public class Inventario_MaterialesController {
+public class MantenimientoController {
 
     @Autowired
-    private Inventario_MaterialesService inventarioService;
+    private MantenimientoService mantenimientoService;
 
     @GetMapping
-    public ResponseEntity<List<Inventario_MaterialesDTO>> listar() {
-        return new ResponseEntity<>(inventarioService.obtenerTodos(), HttpStatus.OK);
+    public ResponseEntity<List<MantenimientoDTO>> listar() {
+        return new ResponseEntity<>(mantenimientoService.obtenerTodos(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Inventario_MaterialesDTO> buscarId(@PathVariable Integer id) {
-        Inventario_MaterialesDTO dto = inventarioService.buscarPorId(id);
+    public ResponseEntity<MantenimientoDTO> obtenerPorId(@PathVariable Integer id) {
+        MantenimientoDTO dto = mantenimientoService.buscarPorId(id);
         if (dto != null) {
             return new ResponseEntity<>(dto, HttpStatus.OK);
         }
@@ -44,14 +44,14 @@ public class Inventario_MaterialesController {
     }
 
     @PostMapping
-    public ResponseEntity<Inventario_MaterialesDTO> guardar(@Valid @RequestBody Inventario_Materiales inv_new) {
-        Inventario_MaterialesDTO nuevo = inventarioService.guardarInventario(inv_new);
+    public ResponseEntity<MantenimientoDTO> guardar(@Valid @RequestBody Mantenimiento mantenimiento) {
+        MantenimientoDTO nuevo = mantenimientoService.guardar(mantenimiento);
         return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Inventario_MaterialesDTO> actualizar(@PathVariable Integer id, @RequestBody Inventario_Materiales datos) {
-        Inventario_MaterialesDTO actualizado = inventarioService.actualizarInventario(id, datos);
+    @PutMapping("/{id}")
+    public ResponseEntity<MantenimientoDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody Mantenimiento datos) {
+        MantenimientoDTO actualizado = mantenimientoService.actualizar(id, datos);
         if (actualizado != null) {
             return new ResponseEntity<>(actualizado, HttpStatus.OK);
         }
@@ -60,9 +60,10 @@ public class Inventario_MaterialesController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        if (inventarioService.eliminarInventario(id)) {
+        if (mantenimientoService.eliminar(id)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    } 
+    }
+
 }

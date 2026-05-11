@@ -8,6 +8,7 @@ import com.cerveza.cerveza.model.Calidad;
 import com.cerveza.cerveza.repository.CalidadRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -16,54 +17,45 @@ public class CalidadService {
     @Autowired
     private CalidadRepository calidadRepository;
 
-    private CalidadDTO convertirDTO(Calidad calidad) {
-        CalidadDTO calidadDTO = new CalidadDTO();
-        calidadDTO.setId_calidad(calidad.getId_calidad());
-        calidadDTO.setCantidad_ph(calidad.getCantidad_ph());
-        calidadDTO.setControl_calidad(calidad.getControl_calidad());
-        return calidadDTO;
-    }
-
-    public List<CalidadDTO> obtenerTodos(){
+    public List<CalidadDTO> obtenerTodos() {
         return calidadRepository.findAll().stream()
-                .map(this::convertirDTO)
-                .toList();
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
-    public CalidadDTO guardar(Calidad calidad){
-        Calidad calidadGuardada = calidadRepository.save(calidad);
-        return convertirDTO(calidadGuardada);
+    public CalidadDTO buscarPorId(Integer id) {
+        return calidadRepository.findById(id)
+                .map(this::convertirADTO)
+                .orElse(null);
     }
 
-    public CalidadDTO buscarPorId(Integer id){
-        Calidad calidad = calidadRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Registro no encontrado (ID: " + id + ")"));
-        return convertirDTO(calidad);
+    public CalidadDTO guardar(Calidad calidad) {
+        Calidad guardada = calidadRepository.save(calidad);
+        return convertirADTO(guardada);
     }
 
-    public CalidadDTO actualizar(Integer id, Calidad nuevosDatos){
-        Calidad existente = calidadRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe el registro para actualizar (ID: " + id + ")"));
-
-        if (nuevosDatos.getCantidad_ph() != null) {
+    public CalidadDTO actualizar(Integer id, Calidad nuevosDatos) {
+        return calidadRepository.findById(id).map(existente -> {
             existente.setCantidad_ph(nuevosDatos.getCantidad_ph());
-        }
-        if (nuevosDatos.getControl_calidad() != null) {
-            existente.setControl_calidad(nuevosDatos.getControl_calidad());
-        }
-
-        Calidad actualizado = calidadRepository.save(existente);
-        return convertirDTO(actualizado);
+            existente.setControl_calidad(nuevosDatos.isControl_calidad());
+            return convertirADTO(calidadRepository.save(existente));
+        }).orElse(null);
     }
 
-    public String eliminar(Integer id){
-        try {
+    public boolean eliminar(Integer id) {
+        if (calidadRepository.existsById(id)) {
             calidadRepository.deleteById(id);
-            return "Registro eliminado exitosamente.";
-        } catch (Exception e) {
-            return "Error al eliminar el registro: " + e.getMessage();
+            return true;
         }
+        return false;
+    }
 
+    private CalidadDTO convertirADTO(Calidad calidad) {
+        CalidadDTO dto = new CalidadDTO();
+        dto.setId_calidad(calidad.getId_calidad());
+        dto.setCantidad_ph(calidad.getCantidad_ph());
+        dto.setControl_calidad(calidad.isControl_calidad());
+        return dto;
     }
 
 

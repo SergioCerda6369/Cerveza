@@ -7,6 +7,6 @@ public class CalidadDTO {
 
     private Integer id_calidad;
     private Integer cantidad_ph;
-    private String control_calidad;
+    private boolean control_calidad;
 
 }

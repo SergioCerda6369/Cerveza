@@ -2,6 +2,8 @@ package com.cerveza.cerveza.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,8 @@ import com.cerveza.cerveza.dto.CalidadDTO;
 import com.cerveza.cerveza.model.Calidad;
 import com.cerveza.cerveza.service.CalidadService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 
@@ -27,22 +31,31 @@ public class CalidadController {
     private CalidadService calidadService;
 
     @GetMapping
-    public List<CalidadDTO> listar() {
-        return calidadService.obtenerTodos();
+    public ResponseEntity<List<CalidadDTO>> listar() {
+        List<CalidadDTO> lista = calidadService.obtenerTodos();
+        return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CalidadDTO> obtenerPorId(@PathVariable Integer id) {
+        CalidadDTO dto = calidadService.buscarPorId(id);
+        if (dto != null) {
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
     @PostMapping
-    public CalidadDTO guardar(@RequestBody Calidad calidad) {
-        return calidadService.guardar(calidad);
-    }
-    
-    @DeleteMapping("/{id}")
-    public String eliminar(@PathVariable Integer id) {
-        return calidadService.eliminar(id);
+    public ResponseEntity<CalidadDTO> guardar(@Valid @RequestBody Calidad calidad) {
+        CalidadDTO nuevo = calidadService.guardar(calidad);
+        return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public CalidadDTO actualizar(@PathVariable Integer id, @RequestBody Calidad nuevosDatos) {
-        return calidadService.actualizar(id, nuevosDatos);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        if (calidadService.eliminar(id)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-}   
+
+}
